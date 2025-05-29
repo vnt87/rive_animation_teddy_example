@@ -37,19 +37,28 @@ class _LoginFormState extends State<LoginForm> {
   SMITrigger? successTrigger, failTrigger;
   SMIBool? isHandsUp, isChecking;
   SMINumber? numLook;
+  bool _rememberMe = false;
+  final FocusNode _passwordFocusNode = FocusNode();
 
   StateMachineController? stateMachineController;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   @override
+  void dispose() {
+    _passwordFocusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   void initState() {
-    // TODO: implement initState
+    _passwordFocusNode.addListener(() {
+      if (_passwordFocusNode.hasFocus) {
+        handsOnTheEyes();
+      }
+    });
     super.initState();
-    animationURL = defaultTargetPlatform == TargetPlatform.android ||
-            defaultTargetPlatform == TargetPlatform.iOS
-        ? 'assets/animations/login.riv'
-        : 'animations/login.riv';
+    animationURL = 'assets/animations/login.riv';
     rootBundle.load(animationURL).then(
       (data) {
         final file = RiveFile.import(data);
@@ -151,7 +160,7 @@ class _LoginFormState extends State<LoginForm> {
                           style: const TextStyle(fontSize: 14),
                           cursorColor: const Color(0xffb04863),
                           decoration: const InputDecoration(
-                            hintText: "Email/Username",
+                            hintText: "Email/Tên đăng nhập",
                             filled: true,
                             border: OutlineInputBorder(
                               borderRadius:
@@ -170,13 +179,14 @@ class _LoginFormState extends State<LoginForm> {
                         const SizedBox(height: 15),
                         TextField(
                           controller: _passwordController,
+                          focusNode: _passwordFocusNode,
                           onTap: handsOnTheEyes,
                           keyboardType: TextInputType.visiblePassword,
                           obscureText: true,
                           style: const TextStyle(fontSize: 14),
                           cursorColor: const Color(0xffb04863),
                           decoration: const InputDecoration(
-                            hintText: "Password",
+                            hintText: "Mật khẩu",
                             filled: true,
                             border: OutlineInputBorder(
                               borderRadius:
@@ -201,10 +211,14 @@ class _LoginFormState extends State<LoginForm> {
                             Row(
                               children: [
                                 Checkbox(
-                                  value: false,
-                                  onChanged: (value) {},
+                                  value: _rememberMe,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _rememberMe = value!;
+                                    });
+                                  },
                                 ),
-                                const Text("Remember me"),
+                                const Text("Ghi nhớ đăng nhập"),
                               ],
                             ),
                             ElevatedButton(
@@ -212,7 +226,13 @@ class _LoginFormState extends State<LoginForm> {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xffb04863),
                               ),
-                              child: const Text("Login"),
+                              child: const Text(
+                                "Đăng nhập",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                ),
+                              ),
                             ),
                           ],
                         ),
